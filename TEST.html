@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+
+}
+</style>
+</head>
+<body>
+
+<h1>Hello World!</h1>
+<div id="Div1" style=" float: left; width: 600px; height: 400px; overflow:scroll; ">
+    <canvas id="canvas" width="200" style="border:1px solid #ff0000;">asdf asd as asfqwe asd asdfasdf asd as asfqwe asd asdfasdf asd as asfqwe asd asdf</canvas>
+</div>
+
+<canvas id="myCanvas1" width="200" style="border:1px solid #ff0000; background-image: url("t.jpg"); ">asdf asd as asfqwe asd asdfasdf asd as asfqwe asd asdfasdf asd as asfqwe asd asdf</canvas>
+
+<script>
+var canvas = document.getElementById("canvas"),
+    ctx = canvas.getContext("2d");
+
+canvas.width = 934;
+canvas.height = 622;
+
+
+var background = new Image();
+background.src = "http://i.imgur.com/yf6d9SX.jpg";
+
+background.onload = function(){
+    ctx.drawImage(background,0,0);   
+}
+
+</script>
+</body>
+</html>
+
+
