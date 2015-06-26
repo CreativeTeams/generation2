@@ -189,7 +189,7 @@ function stateSession() {
 
 function pushToSocket(type, data) {
 	if(type== "draw") {			
-		socket.emit(DRAW_MSG, { ScreenNumber: screenNumber, ObjectID: DOT, Operation: DRAW, OperationData: {x: data.x, y: data.y, rad: data.rad, drag: data.drag}}); 
+		socket.emit(DRAW_MSG, { ScreenNumber: screenNumber, ObjectID: DOT, Operation: DRAW, OperationData: {x: data.x , y: data.y, rad: data.rad, drag: data.drag}}); 
 		redraw(); 
 	}
 	else if(type=="erase") {			
@@ -352,19 +352,24 @@ function redraw() {
 						if(pointsArray[x].owner == pointsArray[i].owner) {
 							context.moveTo( (pointsArray[i].x), (pointsArray[i].y) );
 							context.lineTo(pointsArray[x].x, pointsArray[x].y);
+							console.log("Draw1");
 							break;
 						}
 					}
 				}
 				else {
-					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i) context.moveTo(pointsArray[i-1].x, pointsArray[i-1].y);
-					else context.moveTo(pointsArray[i].x-1, pointsArray[i].y);
-					context.lineTo(pointsArray[i].x, pointsArray[i].y);
+					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i){ context.moveTo(pointsArray[i-1].x + canvasDiv.scrollLeft, pointsArray[i-1].y + canvasDiv.scrollTop); console.log("Draw2");}
+					else{ context.moveTo(pointsArray[i].x-1 + canvasDiv.scrollLeft, pointsArray[i].y + canvasDiv.scrollTop); console.log("Draw3");}
+					context.lineTo(pointsArray[i].x + canvasDiv.scrollLeft, pointsArray[i].y + canvasDiv.scrollTop);
+					// console.log(pointsArray[i].x + "  " + pointsArray[i].y);
+					// console.log(document.getElementById('canvasDiv').scrollTop);
+					// console.log(document.getElementById('canvasDiv').scrollLeft);
 				}
 			context.stroke();
 			}
 		}
 	}
+
 	lastLength = pointsArray.length;
 }
 
