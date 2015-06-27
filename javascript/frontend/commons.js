@@ -26,6 +26,7 @@ var canvasDiv = document.getElementById('canvasDiv');
 var eraseMarginY = 0;
 var eraseMarginX = 0;
 
+
 // Default Instance Information:
 var screenNumber = 1;
 var myColour = "black";
@@ -200,10 +201,11 @@ function pushToSocket(type, data) {
 
 /* canvas event listeners */
 
+//for touch pads
 function doTouchStart(e) {
 	var touchX = e.targetTouches[0].pageX - this.offsetLeft;
 	var touchY = e.targetTouches[0].pageY - this.offsetTop;
-
+	console.log("doTouchStart");
 	if(!isErasing && !painting) {	
 		painting = true;
 		pushToSocket("draw", { x: touchX, y: touchY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
@@ -219,12 +221,13 @@ function doTouchStart(e) {
 };
 
 function doMouseDown(e) {
-	var mouseX = e.pageX - this.offsetLeft;
-	var mouseY = e.pageY - this.offsetTop;
-	
+	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
+	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
+	console.log("doMouseDown");
 	if(!isErasing) {
 		painting = true;
-		pushToSocket("draw", { x: mouseX, y: mouseY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+		pushToSocket("draw", { x: mouseX , y: mouseY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+		
 	}
 	else {
 		isMouseDown = true;
@@ -239,7 +242,7 @@ function doTouchMove(e) {
 	event.preventDefault();
 	var touchX = e.targetTouches[0].pageX - this.offsetLeft;
 	var touchY = e.targetTouches[0].pageY - this.offsetTop;
-	
+	console.log("doTouchMove");
 	if(!isErasing) {
 		if(!painting) {
 			addClickSimple(touchX, touchY, false, radius,  myColour, accessID);	
@@ -251,30 +254,36 @@ function doTouchMove(e) {
 };
 
 function doMouseMove(e) {
+	
 	if(painting){		
 		isMouseDown = true;
-		pushToSocket("draw", { x: (e.pageX - this.offsetLeft), y: (e.pageY - this.offsetTop), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+
+		pushToSocket("draw", { x: (e.pageX - this.offsetLeft + canvasDiv.scrollLeft), y: (e.pageY - this.offsetTop + canvasDiv.scrollTop), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else if(isMouseDown) eraseLite(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true); 
 };
 
 function doTouchEnd() {
+	console.log("doTouchEnd");
 	painting = false;
 	$("#circle").fadeOut();
 };
 
 function doMouseUp(e) {
+	
 	painting = false;
 	isMouseDown = false;
 	if(isErasing) $("#circle").fadeOut();
 };
 
 function doMouseLeave(e) {
+	
 	if(isMouseDown) painting = true;
 	else painting = false;
 };
 
 function doMouseOver(e) {
+	
 	if(isMouseDown == true && isErasing == false) painting = true;
 	else { 
 		painting = false; 
@@ -317,6 +326,7 @@ function prepareCanvas(bgImageUrl) {
 }
 
 function addClickSimple(x, y, dragging, strokeradius, colour, owner) {
+	console.log("pointsArray");
 	pointsArray.push({"owner":owner, "x":x, "y":y, "drag":dragging, "radius":strokeradius, "colour":colour, "active":"1"});
 }
 
@@ -335,6 +345,7 @@ function resizeCanvas() {
 }
 
 function redraw() {	
+	console.log("redrawing");
 	if(pointsArray.length > lastLength){
 	    //for(var i=(pointsArray.length-1); i>=lastLength; i--) {	
 		for(var i=lastLength; i<=(pointsArray.length-1); i++) {	
@@ -358,9 +369,9 @@ function redraw() {
 					}
 				}
 				else {
-					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i){ context.moveTo(pointsArray[i-1].x + canvasDiv.scrollLeft, pointsArray[i-1].y + canvasDiv.scrollTop); console.log("Draw2");}
-					else{ context.moveTo(pointsArray[i].x-1 + canvasDiv.scrollLeft, pointsArray[i].y + canvasDiv.scrollTop); console.log("Draw3");}
-					context.lineTo(pointsArray[i].x + canvasDiv.scrollLeft, pointsArray[i].y + canvasDiv.scrollTop);
+					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i){ context.moveTo(pointsArray[i-1].x , pointsArray[i-1].y); console.log("Draw2");}
+					else{ context.moveTo(pointsArray[i].x-1 , pointsArray[i].y ); console.log("Draw3");}
+					context.lineTo(pointsArray[i].x, pointsArray[i].y);
 					// console.log(pointsArray[i].x + "  " + pointsArray[i].y);
 					// console.log(document.getElementById('canvasDiv').scrollTop);
 					// console.log(document.getElementById('canvasDiv').scrollLeft);
