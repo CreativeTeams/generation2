@@ -203,8 +203,8 @@ function pushToSocket(type, data) {
 
 //for touch pads
 function doTouchStart(e) {
-	var touchX = e.targetTouches[0].pageX - this.offsetLeft;
-	var touchY = e.targetTouches[0].pageY - this.offsetTop;
+	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
+	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
 	console.log("doTouchStart");
 	if(!isErasing && !painting) {	
 		painting = true;
@@ -240,21 +240,21 @@ function doMouseDown(e) {
 
 function doTouchMove(e) {
 	event.preventDefault();
-	var touchX = e.targetTouches[0].pageX - this.offsetLeft;
-	var touchY = e.targetTouches[0].pageY - this.offsetTop;
+	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
+	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
 	console.log("doTouchMove");
 	if(!isErasing) {
 		if(!painting) {
 			addClickSimple(touchX, touchY, false, radius,  myColour, accessID);	
 			painting = true;
 		}
-		else pushToSocket("draw", { x: (e.targetTouches[0].pageX - this.offsetLeft), y: (e.targetTouches[0].pageY - this.offsetTop), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+		else pushToSocket("draw", { x: touchX, y: touchY, drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else eraseLite(touchX, touchY, true);
 };
 
 function doMouseMove(e) {
-	
+	console.log('doMouseMove');
 	if(painting){		
 		isMouseDown = true;
 
@@ -292,9 +292,13 @@ function doMouseOver(e) {
 };
 
 function prepareCanvas(bgImageUrl) {
+	console.log((canvasHeight-460)/2 + "  " + body.innerHeight());
 	canvas = document.createElement('canvas');
-	canvas.setAttribute('width', canvasWidth / 2);
-	canvas.setAttribute('height', (canvasHeight - 460) / 2);
+	canvas.setAttribute('width', 2000);
+	canvas.setAttribute('height',2000);
+	// canvas.setAttribute('margin', auto);
+	// canvas.setAttribute('width', canvasWidth / 2);
+	// canvas.setAttribute('height', (canvasHeight - 460) / 2);
 	canvas.setAttribute('id', 'canvasSimple');
 	canvas.style.display = 'block';
 	canvasDiv.appendChild(canvas);
