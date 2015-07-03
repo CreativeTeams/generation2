@@ -223,7 +223,7 @@ function doTouchStart(e) {
 function doMouseDown(e) {
 	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
-	console.log("doMouseDown");
+	console.log(mouseX);
 	if(!isErasing) {
 		painting = true;
 		pushToSocket("draw", { x: mouseX , y: mouseY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
@@ -255,12 +255,13 @@ function doTouchMove(e) {
 
 function doMouseMove(e) {
 	console.log('doMouseMove');
+	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
+	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
 	if(painting){		
 		isMouseDown = true;
-
-		pushToSocket("draw", { x: (e.pageX - this.offsetLeft + canvasDiv.scrollLeft), y: (e.pageY - this.offsetTop + canvasDiv.scrollTop), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+		pushToSocket("draw", { x: (mouseX), y: (mouseY), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
-	else if(isMouseDown) eraseLite(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true); 
+	else if(isMouseDown) eraseLite(mouseX, mouseY, true); 
 };
 
 function doTouchEnd() {
@@ -270,20 +271,17 @@ function doTouchEnd() {
 };
 
 function doMouseUp(e) {
-	
 	painting = false;
 	isMouseDown = false;
 	if(isErasing) $("#circle").fadeOut();
 };
 
 function doMouseLeave(e) {
-	
 	if(isMouseDown) painting = true;
 	else painting = false;
 };
 
 function doMouseOver(e) {
-	
 	if(isMouseDown == true && isErasing == false) painting = true;
 	else { 
 		painting = false; 
@@ -318,8 +316,10 @@ function prepareCanvas(bgImageUrl) {
 	
 	// Fix for HD Displays:
 	if(window.devicePixelRatio == 2) {
-		canvas.setAttribute('width', canvasWidth / 2);
-		canvas.setAttribute('height', (canvasHeight /2) - 230);
+		// canvas.setAttribute('width', canvasWidth / 2);
+		// canvas.setAttribute('height', (canvasHeight /2) - 230);
+		canvasDiv.setAttribute('width', 1000);
+		canvasDiv.setAttribute('height',1000);
 		document.getElementById('deadzone-top').style.width = "100%";
 		document.getElementById('deadzone-bottom').style.width = "100%";
 	}	
@@ -410,8 +410,8 @@ function resetCache() {
 
 function eraseLite(x, y, dragging) {
 	if(isErasing) {
-		circleDiv.style.top = (y + eraseMarginY) + "px";
-		circleDiv.style.left = (x + eraseMarginX) + "px";
+		circleDiv.style.top = (y + eraseMarginY - canvasDiv.scrollTop) + "px";
+		circleDiv.style.left = (x + eraseMarginX - canvasDiv.scrollLeft +  canvas.offsetLeft) + "px";
 		pushToSocket("erase", { x: x, y: y, drag: dragging, rad: eraserRadius, colour: "rgba(0,0,0,1)", owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 }
@@ -440,9 +440,8 @@ function switchStroke(size, id) {
 	else {
 		eraserRadius = size;
 		circleDiv.style.width = (eraserRadius) + "px";
-		circleDiv.style.height = (eraserRadius) + "px";		
+		circleDiv.style.height = (eraserRadius) + "px";
 	}
-	
 	var startPos = 256;
 	var buttonWidth = 60;
 	var rightMargin = 5;
