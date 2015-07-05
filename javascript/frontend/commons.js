@@ -689,18 +689,11 @@ function disableOrEnable(){
 
 function changeColour(canvasDisabled){
 	if (canvasDisabled){
-		$('.tab').css({
-			'opacity': '0.85'
-		});
 		$('#movebutton').css({
-        'opacity' : '1',
         'background-image': 'url(/assets/images/Move2.png)'
     });
 	}
 	else{
-		$('.tab').css({
-			'opacity': '1'
-		});
 		$('#movebutton').css({
         'background-image': 'url(/assets/images/Move.png)'
     });
