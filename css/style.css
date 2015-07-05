@@ -22,6 +22,8 @@ a, .button {
 	overflow-x:scroll;
 	height: calc(100% - 230px);
 	width: 100%;
+    /*background: rgba(64, 64, 64, 0.5);*/
+	/*color: black;*/
 }
 #canvasSimple{
 	margin: auto;
@@ -89,6 +91,13 @@ body:hover {
 	box-shadow: black 10px 30px 40px 10px;
 }
 
+#movebutton{
+	background-color: #01a1ef;
+	background-image: url('/assets/images/Move.png');
+	z-index: 0;
+	width: 1440px;
+}
+
 #paintbutton {
 	background-color: #ffc907;
 	background-image: url('/assets/images/Pen.png');
@@ -116,6 +125,7 @@ body:hover {
 	z-index: 4;
 	width: 50px;
 }
+
 
 #circle {
 	border-radius: 50%;

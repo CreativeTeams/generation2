@@ -43,6 +43,8 @@ var AccessCode = "";
 var undoArray = [];
 var originalTitle = "";
 
+var canvasDisabled = false;
+
 
 function calculateRemainingTime(currentTime) {	
 	remainTime =  parseInt(totalTestTime - (currentTime-startTime)/1000);	
@@ -292,13 +294,14 @@ function doMouseOver(e) {
 function prepareCanvas(bgImageUrl) {
 	console.log((canvasHeight-460)/2 + "  " + body.innerHeight());
 	canvas = document.createElement('canvas');
-	canvas.setAttribute('width', 2000);
-	canvas.setAttribute('height',2000);
+	canvas.setAttribute('width', 2560);
+	canvas.setAttribute('height',1600);
 	// canvas.setAttribute('margin', auto);
 	// canvas.setAttribute('width', canvasWidth / 2);
 	// canvas.setAttribute('height', (canvasHeight - 460) / 2);
 	canvas.setAttribute('id', 'canvasSimple');
 	canvas.style.display = 'block';
+	canvas.style.border = '3px solid black ';
 	canvasDiv.appendChild(canvas);
 	if(typeof G_vmlCanvasManager != 'undefined') canvas = G_vmlCanvasManager.initElement(canvas);
 	context = canvas.getContext("2d");
@@ -318,8 +321,8 @@ function prepareCanvas(bgImageUrl) {
 	if(window.devicePixelRatio == 2) {
 		// canvas.setAttribute('width', canvasWidth / 2);
 		// canvas.setAttribute('height', (canvasHeight /2) - 230);
-		canvasDiv.setAttribute('width', 1000);
-		canvasDiv.setAttribute('height',1000);
+		// canvasDiv.setAttribute('width', 1000);
+		// canvasDiv.setAttribute('height',1000);
 		document.getElementById('deadzone-top').style.width = "100%";
 		document.getElementById('deadzone-bottom').style.width = "100%";
 	}	
@@ -669,6 +672,41 @@ function sendPrevScreenMsg() {
 function blink(id) {
     var elm = document.getElementById(id);
     elm.style.color = elm.style.color == 'white'? 'black': 'white';
+}
+
+function disableOrEnable(){
+	if (!canvasDisabled){
+		disableCanvas();
+		canvasDisabled = true;
+		changeColour(canvasDisabled);
+	}
+	else{
+		enableCanvas();
+		canvasDisabled = false;
+		changeColour(canvasDisabled);
+	}
+}
+
+function changeColour(canvasDisabled){
+	if (canvasDisabled){
+		$('.tab').css({
+			'opacity': '0.85'
+		});
+		$('#movebutton').css({
+        'opacity' : '1',
+        'background-image': 'url(/assets/images/Move2.png)'
+    });
+	}
+	else{
+		$('.tab').css({
+			'opacity': '1'
+		});
+		$('#movebutton').css({
+        'background-image': 'url(/assets/images/Move.png)'
+    });
+
+	}
+
 }
 
 function enableCanvas() {

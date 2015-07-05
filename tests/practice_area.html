@@ -53,7 +53,7 @@
 		<div id="deadzone-top">	
         	<input name="button" type="button" value="Practice Area" style="float:left; margin-top:25px; font-size:25px" class="topButton" id="top-left-button" onClick="showInstructions(testName);">
             <input name="button" type="button" value="Start Test" style="float:right; margin-top:25px; font-size:25px" class="topButton" id="top-right-button" onClick="sendRequestToNextTest();">
-			<h1 id="supertitle" style="margin-top: 36px; text-align: center;">Creative Teams</h1>			
+			<h1 id="supertitle" style="margin-top: 36px; text-align: center;" >Creative Teams</h1>			
 		</div>		
 		<div id="canvasDiv" > 
 			<div id="circle"></div>		
@@ -63,6 +63,7 @@
             <input name="enterTitle" id="enterTitle" type="button" value="Add Title" 
             onClick="sendRequestToUpdateTitle();" 
             style="position:absolute; left:5px; top:50%; font-size:25px;" class="topButton">
+            <button onclick="disableOrEnable();" class="tab" id="movebutton"></button>
 			<div onclick="switchMode('paint');" class="tab" id="paintbutton">				
 				<div id="innerPaintButtons">				
 					<div class="highlightCircle" id="paintCircle"></div>					
@@ -86,6 +87,8 @@
 			</div>
 			<button onclick="switchIntention('undo');" class="tab" id="undobutton"></button>
 			<button onclick="switchIntention('redo');" class="tab" id="redobutton"></button>
+
+
 			<div class="myslider"></div>
 		</div>
         
