@@ -678,28 +678,17 @@ function disableOrEnable(){
 	if (!canvasDisabled){
 		disableCanvas();
 		canvasDisabled = true;
-		changeColour(canvasDisabled);
+		$('#movebutton').css({
+        	'background-image': 'url(/assets/images/Move2.png)'
+   		 });
 	}
 	else{
 		enableCanvas();
 		canvasDisabled = false;
-		changeColour(canvasDisabled);
-	}
-}
-
-function changeColour(canvasDisabled){
-	if (canvasDisabled){
 		$('#movebutton').css({
-        'background-image': 'url(/assets/images/Move2.png)'
-    });
+        	'background-image': 'url(/assets/images/Move.png)'
+   		 });
 	}
-	else{
-		$('#movebutton').css({
-        'background-image': 'url(/assets/images/Move.png)'
-    });
-
-	}
-
 }
 
 function enableCanvas() {
