@@ -292,10 +292,10 @@ function doMouseOver(e) {
 };
 
 function prepareCanvas(bgImageUrl) {
-	console.log((canvasHeight-460)/2 + "  " + body.innerHeight());
+	
 	canvas = document.createElement('canvas');
-	canvas.setAttribute('width', 2560);
-	canvas.setAttribute('height',1600);
+	canvas.setAttribute('width', 2048);
+	canvas.setAttribute('height',1280);
 	// canvas.setAttribute('margin', auto);
 	// canvas.setAttribute('width', canvasWidth / 2);
 	// canvas.setAttribute('height', (canvasHeight - 460) / 2);
@@ -566,6 +566,7 @@ function changeScreen(bgImagePath) {
     document.getElementById('titleArea').value = "";
     document.getElementById('drawing-title').innerHTML = "Title:";
     socket.emit(GET_TRANSACTIONS_REQ);
+    console.log("TEEEEEEEST");
 }
 
 function showScreenNumber(max) {
@@ -677,21 +678,22 @@ function blink(id) {
 function disableOrEnable(){
 	if (!canvasDisabled){
 		disableCanvas();
-		canvasDisabled = true;
 		$('#movebutton').css({
         	'background-image': 'url(/assets/images/Move2.png)'
    		 });
 	}
 	else{
 		enableCanvas();
-		canvasDisabled = false;
 		$('#movebutton').css({
         	'background-image': 'url(/assets/images/Move.png)'
    		 });
 	}
 }
 
+
+
 function enableCanvas() {
+	canvasDisabled = false;
 	canvasSimple.addEventListener("touchstart", doTouchStart, false);
     canvasSimple.addEventListener("touchmove", doTouchMove, true);
     canvasSimple.addEventListener("touchend", doTouchEnd, false);
@@ -703,6 +705,7 @@ function enableCanvas() {
 }
 
 function disableCanvas() {
+	canvasDisabled = true;
 	canvasSimple.removeEventListener("touchstart", doTouchStart, false);
     canvasSimple.removeEventListener("touchmove", doTouchMove, true);
     canvasSimple.removeEventListener("touchend", doTouchEnd, false);
