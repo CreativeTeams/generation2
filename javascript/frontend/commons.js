@@ -351,6 +351,23 @@ function resizeCanvas() {
      canvasHeight = body.innerHeight();
 }
 
+
+function zoom_in(){
+	context.beginPath();
+	context.scale(1.5,1.5);
+	context.redraw()   
+}
+
+
+function zoom_out(){
+
+	context.prepareCanvas(bgImageUrl);
+	context.scale(0.5,0.5);
+	context.prepareCanvas(bgImageUrl);
+    
+}
+
+
 function redraw() {	
 	console.log("redrawing");
 	if(pointsArray.length > lastLength){
