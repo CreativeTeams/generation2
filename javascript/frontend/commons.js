@@ -351,6 +351,7 @@ function resizeCanvas() {
      canvasHeight = body.innerHeight();
 }
 
+
 function redraw() {	
 	console.log("redrawing");
 	if(pointsArray.length > lastLength){
