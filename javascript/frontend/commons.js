@@ -43,7 +43,7 @@ var AccessCode = "";
 var undoArray = [];
 var originalTitle = "";
 
-var canvasDisabled = false;
+var canDraw = true;
 
 
 function calculateRemainingTime(currentTime) {	
@@ -600,6 +600,7 @@ function disableElements(elements) {
 		disableCanvas();
 }
 
+
 function enableElements(elements) {
 	for (i = 0; i < elements.length; i++) {
 		element = document.getElementById(elements[i]);
@@ -607,8 +608,10 @@ function enableElements(elements) {
 			element.disabled = false;
 		}
 	}
-	if (canvasSimple != undefined) 
+	if (canvasSimple != undefined && canDraw){		
 		enableCanvas();	
+	}
+	console.log(canDraw);
 }
 
 function demoSetupButton() {
@@ -676,24 +679,27 @@ function blink(id) {
 }
 
 function disableOrEnable(){
-	if (!canvasDisabled){
+	if (canDraw){
 		disableCanvas();
 		$('#movebutton').css({
         	'background-image': 'url(/assets/images/Move2.png)'
    		 });
+		canDraw = false;
+		console.log(canDraw);
 	}
 	else{
 		enableCanvas();
 		$('#movebutton').css({
         	'background-image': 'url(/assets/images/Move.png)'
    		 });
+		canDraw = true;
+		console.log(canDraw);
 	}
 }
 
 
 
 function enableCanvas() {
-	canvasDisabled = false;
 	canvasSimple.addEventListener("touchstart", doTouchStart, false);
     canvasSimple.addEventListener("touchmove", doTouchMove, true);
     canvasSimple.addEventListener("touchend", doTouchEnd, false);
@@ -705,7 +711,6 @@ function enableCanvas() {
 }
 
 function disableCanvas() {
-	canvasDisabled = true;
 	canvasSimple.removeEventListener("touchstart", doTouchStart, false);
     canvasSimple.removeEventListener("touchmove", doTouchMove, true);
     canvasSimple.removeEventListener("touchend", doTouchEnd, false);
