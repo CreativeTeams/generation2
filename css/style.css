@@ -19,7 +19,7 @@ a, .button {
 	 -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 #canvasDiv{
-	overflow-x:scroll;
+	overflow:scroll;
 	height: calc(100% - 230px);
 	width: 100%;
     /*background: rgba(64, 64, 64, 0.5);*/

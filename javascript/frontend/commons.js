@@ -316,7 +316,6 @@ function prepareCanvas(bgImageUrl) {
 	enableCanvas();
 	
 	
-	
 	// Fix for HD Displays:
 	if(window.devicePixelRatio == 2) {
 		// canvas.setAttribute('width', canvasWidth / 2);
@@ -701,6 +700,7 @@ function disableOrEnable(){
 
 
 function enableCanvas() {
+	console.log("canvas enabled");
 	canvasSimple.addEventListener("touchstart", doTouchStart, false);
     canvasSimple.addEventListener("touchmove", doTouchMove, true);
     canvasSimple.addEventListener("touchend", doTouchEnd, false);
@@ -712,6 +712,7 @@ function enableCanvas() {
 }
 
 function disableCanvas() {
+	console.log("canvas disabled");
 	canvasSimple.removeEventListener("touchstart", doTouchStart, false);
     canvasSimple.removeEventListener("touchmove", doTouchMove, true);
     canvasSimple.removeEventListener("touchend", doTouchEnd, false);

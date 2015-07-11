@@ -49,9 +49,11 @@ socket.on(GET_STATE_RSP, function(rsp) {
 		prepareCanvas(getBGImageName(rsp.testState.PicConBGImage));
 		socket.emit(GET_TRANSACTIONS_REQ);
 		bgImage = rsp.testState.PicConBGImage;
+
 	} else {
-		prepareCanvas();
+		prepareCanvas();		
 		setupShape();
+		hideWhilePlaceShape();
 		socket.emit(PERM_REQ, CREATE_BACKGROUND);
 	}
 	
@@ -130,6 +132,7 @@ socket.on(BG_CREATED_MSG, function(bgImageName) {
 	document.getElementById('canvasSimple').parentNode.removeChild(document.getElementById('canvasSimple'));
 	prepareCanvas(getBGImageName(bgImageName));
 	bgImage = bgImageName;
+	stopHideWhilePlaceShape();
 });
 
 socket.on(NOTIFY_TEAM_MSG, function(msg){
@@ -181,3 +184,30 @@ function sendPlaceShapeMsg() {
 	*/
 }
 
+function hideWhilePlaceShape(){
+	hideDeadzoneBottom();
+	hideCanvasDiv();
+	disableCanvas();
+}
+
+function stopHideWhilePlaceShape(){
+	revealDeadzoneBottom();
+	revealCanvasDiv();
+	enableCanvas();
+}
+
+function hideDeadzoneBottom(){
+	document.getElementById('deadzone-bottom').style.display = "none";
+}
+
+function hideCanvasDiv(){
+	document.getElementById('canvasDiv').style.overflow = "visible";
+}
+
+function revealDeadzoneBottom(){
+	document.getElementById('deadzone-bottom').style.display = "";
+}
+
+function revealCanvasDiv(){
+	document.getElementById('canvasDiv').style.overflow = "scroll";
+}
