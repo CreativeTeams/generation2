@@ -589,6 +589,7 @@ function getPosition(element) {
     return { x: xPosition, y: yPosition };
 }
 
+
 function disableElements(elements) {
 	for (i = 0; i < elements.length; i++) {
 		element = document.getElementById(elements[i]);
@@ -596,7 +597,8 @@ function disableElements(elements) {
 			element.disabled = true;
 		}
 	}
-	if (canvasSimple != undefined)
+	//Originally was (canvasSimple != undefined), using 'typeof' as quickfix to 'canvasSimple is not defined' reference error
+	if (typeof canvasSimple != undefined)
 		disableCanvas();
 }
 

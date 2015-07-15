@@ -11,7 +11,7 @@ var buttons = ["submit-button", "cancel-button", "delete-button", "top-left-butt
 socket.on(TEST_COMPLETE_MSG, function(rsp) {
 	console.log("TestCompleteMsg received ...");
 	Popup.show('WaitDialog');
-	disableElements(buttons);	
+	// disableElements(buttons);	
 });
 
 socket.on(GET_RESULTS_REQ, function(rsp) {
