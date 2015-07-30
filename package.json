@@ -29,6 +29,6 @@
 	"compression":"^1.2.0"
   },
   "scripts": {
-	"start": "node index.js"
+	"start": "node backend.js"
 	}
 }
