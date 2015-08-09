@@ -44,7 +44,7 @@ var undoArray = [];
 var originalTitle = "";
 
 var canDraw = true;
-
+var simulateArray = [];
 
 function calculateRemainingTime(currentTime) {	
 	remainTime =  parseInt(totalTestTime - (currentTime-startTime)/1000);	
@@ -141,10 +141,13 @@ function handleUpdateTitle(info) {
 }
 
 function handleUndo(info) {
+	console.log("info.userID is : " + info.userID);
+
 	var i;
 	for(i = pointsArray.length - 1; i >=0; i--){
-		point = pointsArray[i];			
-		if(point.owner == info.userID){
+		point = pointsArray[i];		
+		console.log("point owner is: " + point.owner);	
+		if(point.owner == info.userID ){
 			pointsArray.splice(i, 1);
 			undoArray.push(point);			
 			if(point.drag == false){				
@@ -184,18 +187,19 @@ function switchIntention(intention) {
 		socket.emit(REDO_MSG, {userID: AccessCode, ScreenNumber: screenNumber, ObjectID: DOT, Operation: REDO, OperationData:{}});  		
 	}
 }
-
 function stateSession() {	
 	socket.emit(GET_STATE_REQ);	
 }
 
 
 function pushToSocket(type, data) {
-	if(type== "draw") {			
+	if(type== "draw") {	
+		    // addClickSimple(data.x, data.y, data.drag, data.rad, data.colour, data.owner);			
 		socket.emit(DRAW_MSG, { ScreenNumber: screenNumber, ObjectID: DOT, Operation: DRAW, OperationData: {x: data.x , y: data.y, rad: data.rad, drag: data.drag}}); 
 		redraw(); 
 	}
-	else if(type=="erase") {			
+	else if(type=="erase") {	
+		    // addClickSimple(data.x, data.y, data.drag, data.rad, data.colour, data.owner);		
 		socket.emit(ERASE_MSG, { ScreenNumber: screenNumber, ObjectID: DOT, Operation: ERASE, OperationData: {x: data.x, y: data.y, rad: data.rad, drag: data.drag}}); 		
 		redraw(); 
 	}	
@@ -210,6 +214,7 @@ function doTouchStart(e) {
 	console.log("doTouchStart");
 	if(!isErasing && !painting) {	
 		painting = true;
+		simulateRedraw(touchX, touchY, painting, COLOURS[userID], radius);
 		pushToSocket("draw", { x: touchX, y: touchY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else {
@@ -217,6 +222,8 @@ function doTouchStart(e) {
 			circleDiv.style.top = (touchY - 50) + "px";
 			circleDiv.style.left = (touchX - 50) + "px";
 			$("#circle").stop(true, true).fadeIn();
+			simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
+
 			eraseLite(touchX, touchY, false);
 		}
 	}
@@ -225,9 +232,9 @@ function doTouchStart(e) {
 function doMouseDown(e) {
 	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
-	console.log(mouseX);
 	if(!isErasing) {
 		painting = true;
+		simulateRedraw(mouseX, mouseY, painting, COLOURS[userID], radius);
 		pushToSocket("draw", { x: mouseX , y: mouseY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 		
 	}
@@ -235,6 +242,7 @@ function doMouseDown(e) {
 		isMouseDown = true;
 		circleDiv.style.top = (mouseY - 50) + "px";
 		circleDiv.style.left = (mouseX - 50) + "px";
+		simulateRedraw(mouseX, mouseY, true, 'rgba(0,0,0,1)', eraserRadius);
 		eraseLite(mouseX, mouseY, false);
 		$("#circle").stop(true, true).fadeIn();
 	}
@@ -250,10 +258,18 @@ function doTouchMove(e) {
 			addClickSimple(touchX, touchY, false, radius,  myColour, accessID);	
 			painting = true;
 		}
-		else pushToSocket("draw", { x: touchX, y: touchY, drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+		else{
+			simulateRedraw(touchX, touchY, painting, COLOURS[userID], radius); 
+			pushToSocket("draw", { x: touchX, y: touchY, drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
-	else eraseLite(touchX, touchY, true);
+	}
+	else{
+	simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
+ 
+	 eraseLite(touchX, touchY, true);
+	}
 };
+
 
 function doMouseMove(e) {
 	console.log('doMouseMove');
@@ -261,20 +277,26 @@ function doMouseMove(e) {
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
 	if(painting){		
 		isMouseDown = true;
+		simulateRedraw(mouseX, mouseY, painting, COLOURS[userID], radius);
 		pushToSocket("draw", { x: (mouseX), y: (mouseY), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
-	else if(isMouseDown) eraseLite(mouseX, mouseY, true); 
+	else if(isMouseDown){
+	 simulateRedraw(mouseX, mouseY, true, 'rgba(0,0,0,1)', eraserRadius);
+	 eraseLite(mouseX, mouseY, true); 
+	}
 };
 
 function doTouchEnd() {
 	console.log("doTouchEnd");
 	painting = false;
+	simulateRedraw(0, 0, false, COLOURS[userID], radius); 
 	$("#circle").fadeOut();
 };
 
 function doMouseUp(e) {
 	painting = false;
 	isMouseDown = false;
+	simulateRedraw(0,0,false, COLOURS[userID], radius);
 	if(isErasing) $("#circle").fadeOut();
 };
 
@@ -350,6 +372,33 @@ function resizeCanvas() {
      canvasHeight = body.innerHeight();
 }
 
+function simulateRedraw(x, y, isMouseDown, colour, rad){
+	if(colour == "rgba(0,0,0,1)") context.globalCompositeOperation = "destination-out";
+	else context.globalCompositeOperation = "source-over";
+	
+	if (simulateArray.length == 0 && isMouseDown){
+		simulateArray.push([x,y]);
+		console.log("HIT: " + x + "HIT: " + y);
+	}
+	else if(!isMouseDown){
+		simulateArray.pop();
+	}
+	else{
+	var xy = simulateArray.pop();
+	simulateArray.push([x,y]);
+	context.lineWidth = rad;
+	console.log("COLOUR is: " + colour);
+	// context.strokeStyle = COLOURS[userID];
+	context.strokeStyle = colour;
+	console.log("STROKESTYLE is: " + context.strokeStyle);
+	context.beginPath();
+	// context.moveTo(0,0);
+	context.moveTo(xy[0],xy[1]);
+	context.lineTo(x,y);
+	context.stroke();
+	console.log("SIMULATE: x:" + xy[0] + " y: " + xy[1] + " xy: " + xy );
+}
+}
 
 function redraw() {	
 	console.log("redrawing");
@@ -370,14 +419,13 @@ function redraw() {
 						if(pointsArray[x].owner == pointsArray[i].owner) {
 							context.moveTo( (pointsArray[i].x), (pointsArray[i].y) );
 							context.lineTo(pointsArray[x].x, pointsArray[x].y);
-							console.log("Draw1");
 							break;
 						}
 					}
 				}
 				else {
-					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i){ context.moveTo(pointsArray[i-1].x , pointsArray[i-1].y); console.log("Draw2");}
-					else{ context.moveTo(pointsArray[i].x-1 , pointsArray[i].y ); console.log("Draw3");}
+					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i){ context.moveTo(pointsArray[i-1].x , pointsArray[i-1].y);}
+					else{ context.moveTo(pointsArray[i].x-1 , pointsArray[i].y );}
 					context.lineTo(pointsArray[i].x, pointsArray[i].y);
 					// console.log(pointsArray[i].x + "  " + pointsArray[i].y);
 					// console.log(document.getElementById('canvasDiv').scrollTop);
@@ -566,7 +614,6 @@ function changeScreen(bgImagePath) {
     document.getElementById('titleArea').value = "";
     document.getElementById('drawing-title').innerHTML = "Title:";
     socket.emit(GET_TRANSACTIONS_REQ);
-    console.log("TEEEEEEEST");
 }
 
 function showScreenNumber(max) {
