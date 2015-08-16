@@ -209,6 +209,7 @@ function pushToSocket(type, data) {
 
 //for touch pads
 function doTouchStart(e) {
+	e.preventDefault();
 	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
 	console.log("doTouchStart");
@@ -266,7 +267,7 @@ function doTouchMove(e) {
 	else{
 	simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
  
-	 eraseLite(touchX, touchY, true);
+	eraseLite(touchX, touchY, true);
 	}
 };
 
@@ -373,31 +374,33 @@ function resizeCanvas() {
 }
 
 function simulateRedraw(x, y, isMouseDown, colour, rad){
+	console.log("SIMULATE REDRAW");
 	if(colour == "rgba(0,0,0,1)") context.globalCompositeOperation = "destination-out";
 	else context.globalCompositeOperation = "source-over";
 	
-	if (simulateArray.length == 0 && isMouseDown){
+	if (isMouseDown){
+		if (simulateArray.length ==0){
+			simulateArray.push([x-1,y]);
+			console.log("HIT: " + x + "HIT: " + y);
+		}
+		var xy = simulateArray.pop();
 		simulateArray.push([x,y]);
-		console.log("HIT: " + x + "HIT: " + y);
+		context.lineWidth = rad;
+		console.log("COLOUR is: " + colour);
+		// context.strokeStyle = COLOURS[userID];
+		context.strokeStyle = colour;
+		console.log("STROKESTYLE is: " + context.strokeStyle);
+		context.beginPath();
+		// context.moveTo(0,0);
+		context.moveTo(xy[0],xy[1]);
+		context.lineTo(x,y);
+		context.stroke();
+		console.log("Stroke from: " + xy[0] + " , " + xy[1] + " to " + x + " , " + y);
 	}
 	else if(!isMouseDown){
 		simulateArray.pop();
 	}
-	else{
-	var xy = simulateArray.pop();
-	simulateArray.push([x,y]);
-	context.lineWidth = rad;
-	console.log("COLOUR is: " + colour);
-	// context.strokeStyle = COLOURS[userID];
-	context.strokeStyle = colour;
-	console.log("STROKESTYLE is: " + context.strokeStyle);
-	context.beginPath();
-	// context.moveTo(0,0);
-	context.moveTo(xy[0],xy[1]);
-	context.lineTo(x,y);
-	context.stroke();
-	console.log("SIMULATE: x:" + xy[0] + " y: " + xy[1] + " xy: " + xy );
-}
+
 }
 
 function redraw() {	
@@ -419,6 +422,7 @@ function redraw() {
 						if(pointsArray[x].owner == pointsArray[i].owner) {
 							context.moveTo( (pointsArray[i].x), (pointsArray[i].y) );
 							context.lineTo(pointsArray[x].x, pointsArray[x].y);
+
 							break;
 						}
 					}
