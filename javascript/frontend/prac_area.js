@@ -74,10 +74,9 @@ socket.on(REDO_MSG, function(rsp) {
 	handleRedo(rsp);
 });
 
+//COLOURS[dot.userID] COLOURS[userID]
 socket.on(DRAW_MSG, function(dot){
-	console.log("socket.on(DRAW_MSG)");
-	console.log(dot.OperationData.x+ "  " +  dot.OperationData.y);
-	addClickSimple(dot.OperationData.x, dot.OperationData.y, dot.OperationData.drag, dot.OperationData.rad, COLOURS[dot.userID], dot.userID); //pushes to points array
+	addClickSimple(dot.OperationData.x, dot.OperationData.y, dot.OperationData.drag, dot.OperationData.rad, 'grey', dot.userID); //pushes to points array
 	redraw();	
 });
 

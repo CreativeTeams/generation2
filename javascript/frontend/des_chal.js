@@ -115,7 +115,7 @@ socket.on(REDO_MSG, function(rsp) {
 
 socket.on(DRAW_MSG, function(dot){
 	changed = true;
-	addClickSimple(dot.OperationData.x, dot.OperationData.y, dot.OperationData.drag, dot.OperationData.rad, COLOURS[dot.userID], dot.userID);
+	addClickSimple(dot.OperationData.x, dot.OperationData.y, dot.OperationData.drag, dot.OperationData.rad, 'grey', dot.userID);
 	redraw();	
 });
 

@@ -29,7 +29,7 @@ var eraseMarginX = 0;
 
 // Default Instance Information:
 var screenNumber = 1;
-var myColour = "black";
+var myColour = "grey";
 var accessID;
 var groupNumber;
 var userID;
@@ -193,13 +193,11 @@ function stateSession() {
 
 
 function pushToSocket(type, data) {
-	if(type== "draw") {	
-		    // addClickSimple(data.x, data.y, data.drag, data.rad, data.colour, data.owner);			
+	if(type== "draw") {
 		socket.emit(DRAW_MSG, { ScreenNumber: screenNumber, ObjectID: DOT, Operation: DRAW, OperationData: {x: data.x , y: data.y, rad: data.rad, drag: data.drag}}); 
 		redraw(); 
 	}
 	else if(type=="erase") {	
-		    // addClickSimple(data.x, data.y, data.drag, data.rad, data.colour, data.owner);		
 		socket.emit(ERASE_MSG, { ScreenNumber: screenNumber, ObjectID: DOT, Operation: ERASE, OperationData: {x: data.x, y: data.y, rad: data.rad, drag: data.drag}}); 		
 		redraw(); 
 	}	
@@ -215,7 +213,7 @@ function doTouchStart(e) {
 	console.log("doTouchStart");
 	if(!isErasing && !painting) {	
 		painting = true;
-		simulateRedraw(touchX, touchY, painting, COLOURS[userID], radius);
+		simulateRedraw(touchX, touchY, painting, myColour, radius);
 		pushToSocket("draw", { x: touchX, y: touchY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else {
@@ -233,9 +231,10 @@ function doTouchStart(e) {
 function doMouseDown(e) {
 	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
+	// canvasDiv.style.zoom = 0.5;
 	if(!isErasing) {
 		painting = true;
-		simulateRedraw(mouseX, mouseY, painting, COLOURS[userID], radius);
+		simulateRedraw(mouseX, mouseY, painting, myColour, radius);
 		pushToSocket("draw", { x: mouseX , y: mouseY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 		
 	}
@@ -260,7 +259,7 @@ function doTouchMove(e) {
 			painting = true;
 		}
 		else{
-			simulateRedraw(touchX, touchY, painting, COLOURS[userID], radius); 
+			simulateRedraw(touchX, touchY, painting, myColour, radius); 
 			pushToSocket("draw", { x: touchX, y: touchY, drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	}
@@ -278,7 +277,7 @@ function doMouseMove(e) {
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
 	if(painting){		
 		isMouseDown = true;
-		simulateRedraw(mouseX, mouseY, painting, COLOURS[userID], radius);
+		simulateRedraw(mouseX, mouseY, painting, myColour, radius);
 		pushToSocket("draw", { x: (mouseX), y: (mouseY), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else if(isMouseDown){
@@ -290,14 +289,14 @@ function doMouseMove(e) {
 function doTouchEnd() {
 	console.log("doTouchEnd");
 	painting = false;
-	simulateRedraw(0, 0, false, COLOURS[userID], radius); 
+	simulateRedraw(0, 0, false, myColour, radius); 
 	$("#circle").fadeOut();
 };
 
 function doMouseUp(e) {
 	painting = false;
 	isMouseDown = false;
-	simulateRedraw(0,0,false, COLOURS[userID], radius);
+	simulateRedraw(0,0,false, myColour, radius);
 	if(isErasing) $("#circle").fadeOut();
 };
 
@@ -315,20 +314,15 @@ function doMouseOver(e) {
 };
 
 function prepareCanvas(bgImageUrl) {
-	
 	canvas = document.createElement('canvas');
-	canvas.setAttribute('width', 2048);
-	canvas.setAttribute('height',1280);
-	// canvas.setAttribute('margin', auto);
-	// canvas.setAttribute('width', canvasWidth / 2);
-	// canvas.setAttribute('height', (canvasHeight - 460) / 2);
+	canvas.setAttribute('width', 2560);
+	canvas.setAttribute('height',1600);
 	canvas.setAttribute('id', 'canvasSimple');
 	canvas.style.display = 'block';
 	canvas.style.border = '3px solid black ';
 	canvasDiv.appendChild(canvas);
 	if(typeof G_vmlCanvasManager != 'undefined') canvas = G_vmlCanvasManager.initElement(canvas);
 	context = canvas.getContext("2d");
-	
 	if (bgImageUrl != undefined) {
 		switchBackground(bgImageUrl);
 	} else {
@@ -341,10 +335,6 @@ function prepareCanvas(bgImageUrl) {
 	
 	// Fix for HD Displays:
 	if(window.devicePixelRatio == 2) {
-		// canvas.setAttribute('width', canvasWidth / 2);
-		// canvas.setAttribute('height', (canvasHeight /2) - 230);
-		// canvasDiv.setAttribute('width', 1000);
-		// canvasDiv.setAttribute('height',1000);
 		document.getElementById('deadzone-top').style.width = "100%";
 		document.getElementById('deadzone-bottom').style.width = "100%";
 	}	
@@ -355,7 +345,6 @@ function prepareCanvas(bgImageUrl) {
 }
 
 function addClickSimple(x, y, dragging, strokeradius, colour, owner) {
-	console.log("pointsArray");
 	pointsArray.push({"owner":owner, "x":x, "y":y, "drag":dragging, "radius":strokeradius, "colour":colour, "active":"1"});
 }
 
@@ -374,28 +363,21 @@ function resizeCanvas() {
 }
 
 function simulateRedraw(x, y, isMouseDown, colour, rad){
-	console.log("SIMULATE REDRAW");
 	if(colour == "rgba(0,0,0,1)") context.globalCompositeOperation = "destination-out";
 	else context.globalCompositeOperation = "source-over";
 	
 	if (isMouseDown){
 		if (simulateArray.length ==0){
 			simulateArray.push([x-1,y]);
-			console.log("HIT: " + x + "HIT: " + y);
 		}
 		var xy = simulateArray.pop();
 		simulateArray.push([x,y]);
 		context.lineWidth = rad;
-		console.log("COLOUR is: " + colour);
-		// context.strokeStyle = COLOURS[userID];
 		context.strokeStyle = colour;
-		console.log("STROKESTYLE is: " + context.strokeStyle);
 		context.beginPath();
-		// context.moveTo(0,0);
 		context.moveTo(xy[0],xy[1]);
 		context.lineTo(x,y);
 		context.stroke();
-		console.log("Stroke from: " + xy[0] + " , " + xy[1] + " to " + x + " , " + y);
 	}
 	else if(!isMouseDown){
 		simulateArray.pop();
@@ -404,7 +386,6 @@ function simulateRedraw(x, y, isMouseDown, colour, rad){
 }
 
 function redraw() {	
-	console.log("redrawing");
 	if(pointsArray.length > lastLength){
 	    //for(var i=(pointsArray.length-1); i>=lastLength; i--) {	
 		for(var i=lastLength; i<=(pointsArray.length-1); i++) {	
@@ -431,9 +412,6 @@ function redraw() {
 					if( (pointsArray[i].drag === true || pointsArray[i].drag === "true") && i){ context.moveTo(pointsArray[i-1].x , pointsArray[i-1].y);}
 					else{ context.moveTo(pointsArray[i].x-1 , pointsArray[i].y );}
 					context.lineTo(pointsArray[i].x, pointsArray[i].y);
-					// console.log(pointsArray[i].x + "  " + pointsArray[i].y);
-					// console.log(document.getElementById('canvasDiv').scrollTop);
-					// console.log(document.getElementById('canvasDiv').scrollLeft);
 				}
 			context.stroke();
 			}
@@ -445,7 +423,6 @@ function redraw() {
 
 function switchBackground(url) {
 	if (canvasDiv){
-		console.log("background is: " + url);
 		if(url != " " || url != "") canvas.style.background = 'url(' + url + ') no-repeat center ';
 		else canvas.style.background = "white";
 /*		var imageObj = new Image();
@@ -648,7 +625,6 @@ function disableElements(elements) {
 			element.disabled = true;
 		}
 	}
-	//Originally was (canvasSimple != undefined), using 'typeof' as quickfix to 'canvasSimple is not defined' reference error
 	if (typeof canvasSimple != undefined)
 		disableCanvas();
 }
@@ -664,7 +640,6 @@ function enableElements(elements) {
 	if (canvasSimple != undefined && canDraw){		
 		enableCanvas();	
 	}
-	console.log(canDraw);
 }
 
 function demoSetupButton() {
@@ -738,7 +713,6 @@ function disableOrEnable(){
         	'background-image': 'url(/assets/images/Move2.png)'
    		 });
 		canDraw = false;
-		console.log(canDraw);
 	}
 	else{
 		enableCanvas();
@@ -746,14 +720,12 @@ function disableOrEnable(){
         	'background-image': 'url(/assets/images/Move.png)'
    		 });
 		canDraw = true;
-		console.log(canDraw);
 	}
 }
 
 
 
 function enableCanvas() {
-	console.log("canvas enabled");
 	canvasSimple.addEventListener("touchstart", doTouchStart, false);
     canvasSimple.addEventListener("touchmove", doTouchMove, true);
     canvasSimple.addEventListener("touchend", doTouchEnd, false);
@@ -765,7 +737,6 @@ function enableCanvas() {
 }
 
 function disableCanvas() {
-	console.log("canvas disabled");
 	canvasSimple.removeEventListener("touchstart", doTouchStart, false);
     canvasSimple.removeEventListener("touchmove", doTouchMove, true);
     canvasSimple.removeEventListener("touchend", doTouchEnd, false);
