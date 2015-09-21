@@ -207,13 +207,13 @@ function pushToSocket(type, data) {
 
 //for touch pads
 function doTouchStart(e) {
-	e.preventDefault();
+	event.preventDefault();
 	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
-	console.log("doTouchStart");
+
 	if(!isErasing && !painting) {	
 		painting = true;
-		simulateRedraw(touchX, touchY, painting, myColour, radius);
+ 		simulateRedraw(touchX, touchY, painting, myColour, radius);
 		pushToSocket("draw", { x: touchX, y: touchY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else {
@@ -221,7 +221,7 @@ function doTouchStart(e) {
 			circleDiv.style.top = (touchY - 50) + "px";
 			circleDiv.style.left = (touchX - 50) + "px";
 			$("#circle").stop(true, true).fadeIn();
-			simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
+ 			simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
 
 			eraseLite(touchX, touchY, false);
 		}
@@ -252,7 +252,7 @@ function doTouchMove(e) {
 	event.preventDefault();
 	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
-	console.log("doTouchMove");
+
 	if(!isErasing) {
 		if(!painting) {
 			addClickSimple(touchX, touchY, false, radius,  myColour, accessID);	
@@ -272,7 +272,7 @@ function doTouchMove(e) {
 
 
 function doMouseMove(e) {
-	console.log('doMouseMove');
+
 	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
 	if(painting){		
@@ -287,7 +287,7 @@ function doMouseMove(e) {
 };
 
 function doTouchEnd() {
-	console.log("doTouchEnd");
+
 	painting = false;
 	simulateRedraw(0, 0, false, myColour, radius); 
 	$("#circle").fadeOut();
@@ -315,14 +315,17 @@ function doMouseOver(e) {
 
 function prepareCanvas(bgImageUrl) {
 	canvas = document.createElement('canvas');
-	canvas.setAttribute('width', 2560);
+	canvas.setAttribute('width', 2048);
 	canvas.setAttribute('height',1600);
+	
 	canvas.setAttribute('id', 'canvasSimple');
 	canvas.style.display = 'block';
 	canvas.style.border = '3px solid black ';
 	canvasDiv.appendChild(canvas);
+	
 	if(typeof G_vmlCanvasManager != 'undefined') canvas = G_vmlCanvasManager.initElement(canvas);
 	context = canvas.getContext("2d");
+	
 	if (bgImageUrl != undefined) {
 		switchBackground(bgImageUrl);
 	} else {
@@ -335,6 +338,8 @@ function prepareCanvas(bgImageUrl) {
 	
 	// Fix for HD Displays:
 	if(window.devicePixelRatio == 2) {
+		//	canvas.setAttribute('width', canvasWidth / 2);
+		//canvas.setAttribute('height', (canvasHeight /2) - 230);
 		document.getElementById('deadzone-top').style.width = "100%";
 		document.getElementById('deadzone-bottom').style.width = "100%";
 	}	
