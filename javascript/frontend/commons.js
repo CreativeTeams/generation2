@@ -43,7 +43,7 @@ var AccessCode = "";
 var undoArray = [];
 var originalTitle = "";
 
-var canDraw = true;
+var canDraw = false;
 var simulateArray = [];
 
 function calculateRemainingTime(currentTime) {	
@@ -333,7 +333,7 @@ function prepareCanvas(bgImageUrl) {
 	}
 	
 	// Event Handlers:
-	enableCanvas();
+	disableCanvas();
 	
 	
 	// Fix for HD Displays:
