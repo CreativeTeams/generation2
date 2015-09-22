@@ -203,38 +203,43 @@ function pushToSocket(type, data) {
 	}	
 }
 
+
 /* canvas event listeners */
 
 //for touch pads
 function doTouchStart(e) {
-	event.preventDefault();
-	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
-	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
+	if(e.targetTouches.length === 1){ 
+		event.preventDefault();
+		var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
+		var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
 
-	if(!isErasing && !painting) {	
-		painting = true;
- 		simulateRedraw(touchX, touchY, painting, myColour, radius);
-		pushToSocket("draw", { x: touchX, y: touchY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
-	}
-	else {
-		if (!painting) {
-			circleDiv.style.top = (touchY - 50) + "px";
-			circleDiv.style.left = (touchX - 50) + "px";
-			$("#circle").stop(true, true).fadeIn();
- 			simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
+		if(!isErasing && !painting) {	
+			painting = true;
+			frontendDraw(touchX, touchY, true, myColour, radius);
+			pushToSocket("draw", { x: touchX, y: touchY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
+		}
+		else {
+			if (!painting) {
+				circleDiv.style.top = (touchY - 50) + "px";
+				circleDiv.style.left = (touchX - 50) + "px";
+				$("#circle").stop(true, true).fadeIn();
 
-			eraseLite(touchX, touchY, false);
+				frontendDraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
+
+
+				eraseLite(touchX, touchY, false);
+			}
 		}
 	}
+
 };
 
 function doMouseDown(e) {
 	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
-	// canvasDiv.style.zoom = 0.5;
 	if(!isErasing) {
 		painting = true;
-		simulateRedraw(mouseX, mouseY, painting, myColour, radius);
+		frontendDraw(mouseX, mouseY, true, myColour, radius);
 		pushToSocket("draw", { x: mouseX , y: mouseY, drag: false, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 		
 	}
@@ -242,13 +247,14 @@ function doMouseDown(e) {
 		isMouseDown = true;
 		circleDiv.style.top = (mouseY - 50) + "px";
 		circleDiv.style.left = (mouseX - 50) + "px";
-		simulateRedraw(mouseX, mouseY, true, 'rgba(0,0,0,1)', eraserRadius);
+		frontendDraw(mouseX, mouseY, true, 'rgba(0,0,0,1)', eraserRadius);
 		eraseLite(mouseX, mouseY, false);
 		$("#circle").stop(true, true).fadeIn();
 	}
 };
 
 function doTouchMove(e) {
+	if (e.targetTouches.length === 1){
 	event.preventDefault();
 	var touchX = e.targetTouches[0].pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var touchY = e.targetTouches[0].pageY - this.offsetTop + canvasDiv.scrollTop;
@@ -259,44 +265,45 @@ function doTouchMove(e) {
 			painting = true;
 		}
 		else{
-			simulateRedraw(touchX, touchY, painting, myColour, radius); 
+			frontendDraw(touchX, touchY, true, myColour, radius); 
 			pushToSocket("draw", { x: touchX, y: touchY, drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	}
 	else{
-	simulateRedraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
+	frontendDraw(touchX, touchY, true, 'rgba(0,0,0,1)', eraserRadius);
  
 	eraseLite(touchX, touchY, true);
 	}
+}
+
 };
 
 
 function doMouseMove(e) {
-
 	var mouseX = e.pageX - this.offsetLeft + canvasDiv.scrollLeft;
 	var mouseY = e.pageY - this.offsetTop + canvasDiv.scrollTop;
 	if(painting){		
 		isMouseDown = true;
-		simulateRedraw(mouseX, mouseY, painting, myColour, radius);
+		frontendDraw(mouseX, mouseY, true, myColour, radius);
 		pushToSocket("draw", { x: (mouseX), y: (mouseY), drag: true, rad: radius, colour: myColour, owner: accessID, group: groupNumber, screen: screenNumber });
 	}
 	else if(isMouseDown){
-	 simulateRedraw(mouseX, mouseY, true, 'rgba(0,0,0,1)', eraserRadius);
+	 frontendDraw(mouseX, mouseY, true, 'rgba(0,0,0,1)', eraserRadius);
 	 eraseLite(mouseX, mouseY, true); 
 	}
 };
 
 function doTouchEnd() {
-
 	painting = false;
-	simulateRedraw(0, 0, false, myColour, radius); 
+	frontendDraw(0, 0, false, myColour, radius); 
 	$("#circle").fadeOut();
 };
 
 function doMouseUp(e) {
+
 	painting = false;
 	isMouseDown = false;
-	simulateRedraw(0,0,false, myColour, radius);
+	frontendDraw(0,0,false, myColour, radius);
 	if(isErasing) $("#circle").fadeOut();
 };
 
@@ -367,11 +374,13 @@ function resizeCanvas() {
      canvasHeight = body.innerHeight();
 }
 
-function simulateRedraw(x, y, isMouseDown, colour, rad){
+//This method is similar to redraw(), but it does not take into account point owners or point colours. 
+//It is used to reduce drawing lag by drawing at the frontend first before pushToSocket sends the info to the backend.
+function frontendDraw(x, y, isTouchDown, colour, rad){
 	if(colour == "rgba(0,0,0,1)") context.globalCompositeOperation = "destination-out";
 	else context.globalCompositeOperation = "source-over";
 	
-	if (isMouseDown){
+	if (isTouchDown){
 		if (simulateArray.length ==0){
 			simulateArray.push([x-1,y]);
 		}
@@ -384,13 +393,14 @@ function simulateRedraw(x, y, isMouseDown, colour, rad){
 		context.lineTo(x,y);
 		context.stroke();
 	}
-	else if(!isMouseDown){
+	else if(!isTouchDown){
 		simulateArray.pop();
 	}
 
 }
 
 function redraw() {	
+	console.log("REDRAW");
 	if(pointsArray.length > lastLength){
 	    //for(var i=(pointsArray.length-1); i>=lastLength; i--) {	
 		for(var i=lastLength; i<=(pointsArray.length-1); i++) {	
@@ -595,6 +605,7 @@ function changeScreen(bgImagePath) {
     undoArray.length = 0;
     lastLength = 0;
     clearCanvas();
+    console.log("changeScreen");
     if (bgImagePath != undefined)
     	switchBackground(bgImagePath);
     document.getElementById('titleArea').value = "";

@@ -103,6 +103,7 @@ socket.on(REDO_MSG, function(rsp) {
 });
 
 socket.on(DRAW_MSG, function(dot){
+	console.log("DRAW_MSG");
 	changed = true;
 	addClickSimple(dot.OperationData.x, dot.OperationData.y, dot.OperationData.drag, dot.OperationData.rad, 'grey', dot.userID);
 	redraw();	
